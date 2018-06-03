@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+<script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.9/angular.min.js"></script>
+<link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/2.3.2/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+<body>
+
+<h1>This is my applicaiton</h1>
+
+<div ng-app="myApp" ng-controller="myCtrl">
+
+   <h2>View related example</h2>
+    First Name: <input type="text" ng-model="firstName"><br>
+    Last Name: <input type="text" ng-model="lastName"><br>
+    <br>
+    Full Name: {{firstName + " " + lastName}}<br>
+    <br>
+    <h2>Write a file</h2>
+    New File: <input type="text" ng-model="filePath"><br>
+    New File content: <input type="text" ng-model="fileContent"><br>
+    <input value="save file" type="button" ng-click="createNewFile()"></input><br>
+
+    <div ng-show="showErrorFlag" class="alert alert-danger"><strong>Error:</strong> {{errorMessage}}</div>
+    <div ng-show="showInfoFlag" class="alert alert-info"><strong>Info:</strong> {{infoMessage}}</div>
+</div>
+
+<script>
+var chZahooXplatformApp = {};
+chZahooXplatformApp.ServerAddress = "http://localhost:localport_paceholder_c03861b4-0c09-4bc9-aca9-3a3bd2fe8aad";
+
+var app = angular.module('myApp', []);
+app.controller('myCtrl', function($scope, $timeout) {
+    $scope.firstName= "John";
+    $scope.lastName= "Doe";
+    $scope.filePath= "";
+    $scope.fileContent= "";
+    $scope.showErrorFlag = false;
+    
+    $scope.createNewFile = function(){
+        var request = new XMLHttpRequest();
+        request.onreadystatechange = function() {
+            console.log(request)
+            if (request.readyState == XMLHttpRequest.DONE) {
+                $scope.$apply(function(){ 
+                    //$scope.showInfo(request.statusText + " and " + request.status);
+                    if (request.status == 200){
+                        $scope.showInfo(request.responseText);                
+                    }
+                    else {
+                        $scope.showError(request.responseText);
+                    }});
+            }
+        };
+        request.open("GET", chZahooXplatformApp.ServerAddress + "/createNewFile?filePath=" + $scope.filePath +"&fileContent=" + $scope.fileContent , true);
+        request.send();
+    }     
+
+    $scope.showInfo = function(message){
+      this.showInfoFlag = true;
+      this.infoMessage = message;
+      that = this;
+        $timeout(function(){
+           that.showInfoFlag  = false;
+        }, 2500);
+      };
+
+    $scope.showError = function(errorMessage){
+      this.showErrorFlag = true;
+      this.errorMessage = errorMessage;
+      that = this;
+        $timeout(function(){
+           that.showErrorFlag  = false;
+        }, 2500);
+      };
+});
+</script>
+
+</body>
+</html>
+
